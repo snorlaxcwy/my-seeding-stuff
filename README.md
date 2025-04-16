@@ -15,7 +15,7 @@ dotenv - for managaing environment variables
 pg-format - for formatting safe SQL queries in the seed script
 jest - for testing
 
-# Create environment variable files
+# SETUP local environment variable files
 
 .env.development
 .env.test
@@ -33,3 +33,13 @@ npm run setup-dbs
 and then test createTables by using db.query
 
 npm run test-seed to test each codings
+
+# seeding the database
+
+npm run seed-dev
+npm run test-seed
+
+# run Queries
+
+node query.js
+=> all output to output.txt
