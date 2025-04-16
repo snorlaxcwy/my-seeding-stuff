@@ -575,7 +575,7 @@ describe("data insertion", () => {
     });
   });
 
-  xtest("users data has been inserted correctly", () => {
+  test("users data has been inserted correctly", () => {
     return db.query(`SELECT * FROM users;`).then(({ rows: users }) => {
       expect(users).toHaveLength(4);
       users.forEach((user) => {
@@ -586,7 +586,7 @@ describe("data insertion", () => {
     });
   });
 
-  xtest("articles data has been inserted correctly", () => {
+  test("articles data has been inserted correctly", () => {
     return db.query(`SELECT * FROM articles;`).then(({ rows: articles }) => {
       expect(articles).toHaveLength(13);
       articles.forEach((article) => {
@@ -602,7 +602,7 @@ describe("data insertion", () => {
     });
   });
 
-  xtest("comments data has been inserted correctly", () => {
+  test("comments data has been inserted correctly", () => {
     return db.query(`SELECT * FROM comments;`).then(({ rows: comments }) => {
       expect(comments).toHaveLength(18);
       comments.forEach((comment) => {
