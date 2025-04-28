@@ -7,8 +7,10 @@ app.use(express.json());
 
 //routes
 const { getApi } = require("./controllers/api.controller");
+const { getTopics } = require("./controllers/topics.controller");
 
 app.get("/api", getApi);
+app.get("/api/topics", getTopics);
 
 // 404 handler
 app.all("/*splat", (req, res) => {
