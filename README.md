@@ -57,26 +57,37 @@ node query.js
     git checkout main <go to main first>
     git banch -D file-name
 
-# GET /api
+# 1. GET /api
 
-- new branch
+    - new branch
 
-# commit changes regularly:
+    ## commit changes regularly:
 
-- create controller
-- apps.js + route
-- happy path test + error handling test
-- endpoints.json update
-- listen.js ( > node listen.js)
+    - create controller
+    - apps.js + route
+    - happy path test + error handling test
+    - endpoints.json update
+    - listen.js ( > node listen.js)
 
-# sumbit changes
+    ## sumbit changes
 
-# git push origin file-nmae
+    ## git push origin file-nmae
 
-# go git hub to create pull request
+    ## go git hub to create pull request
 
-# confirm no merge conflict, and confirm to merge to the main
+    ## confirm no merge conflict, and confirm to merge to the main
 
-# URL of the pull request > /nchelp pr command on Slack (no. of task and name)
+    ## URL of the pull request > /nchelp pr command on Slack (no. of task and name)
 
-# git checkout main > git pull origin main
+    ## git checkout main > git pull origin main
+
+# 2. GET /api/topics
+
+    -new branch
+    -write test
+    -model
+    -controller
+    -update app
+    -update endpoints
+    -test
+    -push and pull
