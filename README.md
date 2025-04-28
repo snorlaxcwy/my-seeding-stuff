@@ -43,3 +43,40 @@ npm run test-seed
 
 node query.js
 => all output to output.txt
+
+##### Git Branching
+
+# Local
+
+    git checkout main
+    git pull origi main <confirm get all the updated data from git>
+    git branch -B file-name
+
+## if delete
+
+    git checkout main <go to main first>
+    git banch -D file-name
+
+# GET /api
+
+- new branch
+
+# commit changes regularly:
+
+- create controller
+- apps.js + route
+- happy path test + error handling test
+- endpoints.json update
+- listen.js
+
+# sumbit changes
+
+# git push origin file-nmae
+
+# go git hub to create pull request
+
+# confirm no merge conflict, and confirm to merge to the main
+
+# URL of the pull request > /nchelp pr command on Slack (no. of task and name)
+
+# git checkout main > git pull origin main
