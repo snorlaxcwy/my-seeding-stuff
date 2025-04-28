@@ -67,7 +67,7 @@ node query.js
 - apps.js + route
 - happy path test + error handling test
 - endpoints.json update
-- listen.js
+- listen.js ( > node listen.js)
 
 # sumbit changes
 
