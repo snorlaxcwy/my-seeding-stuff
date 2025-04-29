@@ -49,8 +49,8 @@ node query.js
 # Local
 
     git checkout main
-    git pull origi main <confirm get all the updated data from git>
-    git branch -B file-name
+    git pull origi main
+    git checkout -B file-name
 
 ## if delete
 
@@ -67,13 +67,13 @@ node query.js
     - apps.js + route
     - happy path test + error handling test
     - endpoints.json update
-    - listen.js ( > node listen.js)
+    - listen.js ( => node listen.js)
 
     ## sumbit changes
 
     ## git push origin file-nmae
 
-    ## go git hub to create pull request
+    ## go github to create pull request
 
     ## confirm no merge conflict, and confirm to merge to the main
 
@@ -91,3 +91,17 @@ node query.js
     -update endpoints
     -test
     -push and pull
+
+# 3. GET /api/articles/:article_id
+
+    - new branch
+    - write test : happy path & error cases
+    - happy path: get all article properties by the article_id inclduing author,title,article_id,body,topic,created_at(timestmap number),votes,article_img_url
+    - created_at need jest.fn to work on the test (timestamp to iso
+    https://www.timestamp-converter.com/ || new Date(1594329060000).toISOString())
+    - model : db query => 404
+    - controller => link model
+    - add new route to app.js
+    - update endpoints.json
+    - pass all test
+    - push and pull
