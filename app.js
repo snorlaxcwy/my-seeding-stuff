@@ -8,9 +8,11 @@ app.use(express.json());
 //routes
 const { getApi } = require("./controllers/api.controller");
 const { getTopics } = require("./controllers/topics.controller");
+const { getArticleById } = require("./controllers/articles.controller");
 
 app.get("/api", getApi);
 app.get("/api/topics", getTopics);
+app.get("/api/articles/:article_id", getArticleById);
 
 // 404 handler
 app.all("/*splat", (req, res) => {
@@ -20,7 +22,7 @@ app.all("/*splat", (req, res) => {
 // erroe handlers
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
-    return res.status(400).send({ msg: "Bad Request" });
+    return res.status(400).send({ msg: "400 Bad Request" });
   } else if (err.status) {
     return res.status(err.status).send({ msg: err.msg });
   } else {
