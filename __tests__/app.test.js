@@ -5,6 +5,7 @@ const db = require("../db/connection.js");
 const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data");
 const articles = require("../db/data/test-data/articles.js");
+require("jest-sorted");
 
 beforeEach(() => {
   jest.spyOn(Date, "now").mockImplementation(() => 1594329060000);
@@ -58,7 +59,7 @@ describe("2. GET /api/topics", () => {
   });
 });
 describe("3. GET /api/articles/:article_id", () => {
-  test("3a. 200: Responds with an object with all articles properties by article_id", () => {
+  /*  test("3a. 200: Responds with an object with all articles properties by article_id", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
@@ -76,7 +77,7 @@ describe("3. GET /api/articles/:article_id", () => {
           })
         );
       });
-  });
+  }); */ //<== similar to test 3b commented by Langa
   test("3b. 200: Responds with an object with all articles properties by article_id=1", () => {
     return request(app)
       .get("/api/articles/1")
@@ -114,6 +115,53 @@ describe("3. GET /api/articles/:article_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("404 Not Found");
+      });
+  });
+});
+describe("4. Get /api/articles", () => {
+  test("4a. 200: Respond with array of article object without body and all required keys ", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((res) => {
+        const { articles } = res.body;
+        expect(Array.isArray(articles)).toBe(true);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+          expect(article).not.toHaveProperty("body");
+        });
+      });
+  });
+  test("4b. 200: Respond with articles sorted by created_at in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((res) => {
+        const { articles } = res.body;
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("4c. 200: each article's comment_count matches expected total from test data", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((res) => {
+        const { articles } = res.body;
+        const articleWithComments = articles.find(
+          (article) => article.article_id === 3
+        );
+        expect(articleWithComments.comment_count).toBe(2);
       });
   });
 });
