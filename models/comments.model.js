@@ -30,3 +30,29 @@ exports.selectCommentsByArticleId = (article_id) => {
     }
   });
 };
+
+exports.insertCommentByArticleId = (article_id, newComment) => {
+  const { username, body } = newComment;
+  // if no username/body => pass to 400
+  if (!username || !body) {
+    return Promise.reject({ status: 400, msg: "400 Bad Request" });
+  }
+  // check article_id exists or not
+  return db
+    .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+    .then(({ rows }) => {
+      //if article_id not exists, pass to 404
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "404 Not Found" });
+      }
+      //insert comment
+      const queryStr = `
+    INSERT INTO comments (author, body, article_id)
+    VALUES ($1, $2, $3)
+    RETURNING *;`;
+
+      return db
+        .query(queryStr, [username, body, article_id])
+        .then(({ rows }) => rows[0]);
+    });
+};
