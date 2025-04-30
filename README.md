@@ -105,3 +105,22 @@ node query.js
     - update endpoints.json
     - pass all test
     - push and pull
+
+# 4 GET /api/articles
+
+    - new branch
+    - get all articles sorted by date in desc
+    - no body property present on any of the article objects
+    - happy path test : return author,title,article_id, topic,created_at(timestmap number),votes,article_img_url, comment_count(comments table)
+    - superytest >> async/await
+    - require("jest-sorted");
+    - comment_count can't use js, need to make use of queries to the database => no 400/404 as not query str
+    - *no body
+    - tests : 200, 200 with corrected order, 200 with object no body
+    - using previous model and conttollers
+    - client -> controller -> model(sql) -> db.query(quesrtStr) send to PostgreSQL -> SQL query get data + count comments + sortby -> result.rows -> go back to controller > client
+    - seeding => title → article_id lookup mapping, if not test will fail
+    - add new route to app.js
+    - update endpoints.json
+    - pass all test
+    - push and pull

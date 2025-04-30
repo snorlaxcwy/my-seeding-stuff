@@ -182,16 +182,30 @@ function seed({ topicData, userData, articleData, commentData }) {
 
       //insert comments data
       //no need to insert comment_id, its SERIAL PRIMARY KEY
-      .then(() => {
+      // insert comments data
+      .then((articlesResult) => {
+        const articleRows = articlesResult.rows;
+
+        // 1. build lookup object: title -> article_id
+        const articleLookup = articleRows.reduce((acc, article) => {
+          acc[article.title] = article.article_id;
+          return acc;
+        }, {});
+
+        // 2. format comment data（change title to article_id）
         const formattedComments = commentData.map((comment) => {
-          const { article_id, body, votes, author, created_at } = comment;
+          const { article_title, body, votes, author, created_at } = comment;
+          const article_id = articleLookup[article_title];
+          //  chnage title to article_id
           const { created_at: formattedDate } = convertTimestampToDate({
             created_at,
           });
           return [article_id, body, votes, author, formattedDate];
         });
+
+        // 3. insert comment
         const insertCommentsQuery = format(
-          `INSERT INTO comments ( article_id, body, votes, author, created_at) VALUES %L RETURNING *;`,
+          `INSERT INTO comments (article_id, body, votes, author, created_at) VALUES %L RETURNING *;`,
           formattedComments
         );
         return db.query(insertCommentsQuery);
