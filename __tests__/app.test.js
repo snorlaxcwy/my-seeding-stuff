@@ -165,3 +165,75 @@ describe("4. Get /api/articles", () => {
       });
   });
 });
+describe("5. Get /api/articles/:article_id/comments", () => {
+  test("5a. 200: Responds with array of comments sorted by created_at DESC", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.comments)).toBe(true);
+        expect(body.comments).toBeSortedBy("created_at", { descending: true });
+        body.comments.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              article_id: 1,
+            })
+          );
+        });
+      });
+  });
+  test("5b. 200: Reponds with detailing array when article_id=3", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toEqual([
+          {
+            comment_id: expect.any(Number),
+            body: "Ambidextrous marsupial",
+            votes: 0,
+            author: "icellusedkars",
+            created_at: "2020-09-19T23:10:00.000Z",
+            article_id: 3,
+          },
+          {
+            comment_id: expect.any(Number),
+            body: "git push origin master",
+            votes: 0,
+            author: "icellusedkars",
+            created_at: "2020-06-20T07:24:00.000Z",
+            article_id: 3,
+          },
+        ]);
+      });
+  });
+  test("5c. 200: Responds with empty array with valid article but no comment", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toEqual([]);
+      });
+  });
+  test("5d. 404: article_id valid but not found ", () => {
+    return request(app)
+      .get("/api/articles/99999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("404 Not Found");
+      });
+  });
+  test("5e. 400: invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/abcde/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("400 Bad Request");
+      });
+  });
+});

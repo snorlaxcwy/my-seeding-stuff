@@ -112,7 +112,6 @@ node query.js
     - get all articles sorted by date in desc
     - no body property present on any of the article objects
     - happy path test : return author,title,article_id, topic,created_at(timestmap number),votes,article_img_url, comment_count(comments table)
-    - superytest >> async/await
     - require("jest-sorted");
     - comment_count can't use js, need to make use of queries to the database => no 400/404 as not query str
     - *no body
@@ -123,4 +122,19 @@ node query.js
     - add new route to app.js
     - update endpoints.json
     - pass all test
+    - push and pull
+
+# 5 GET /api/articles/:article_id/comments
+
+    - new branch
+    - get all comments from an article_id
+    - happy path test : return an array with comments including comment_id, votes, created_at, author, body, article_id
+    - comment order by created_at DESC
+    - created_at => ISO string
+    - test with valid_id but no comments=>[]
+    - 404 & 400 error case handling
+    - create comment model & controller
+    - add route to apps.js
+    - pass all test
+    - update endpoints
     - push and pull

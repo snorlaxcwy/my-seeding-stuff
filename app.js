@@ -12,11 +12,13 @@ const {
   getArticleById,
   getAllArticles,
 } = require("./controllers/articles.controller");
+const { getCommentsByArticleId } = require("./controllers/comments.controller");
 
 app.get("/api", getApi);
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getAllArticles);
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 // 404 handler
 app.all("/*splat", (req, res) => {
