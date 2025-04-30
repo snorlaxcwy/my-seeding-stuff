@@ -120,3 +120,7 @@ node query.js
     - using previous model and conttollers
     - client -> controller -> model(sql) -> db.query(quesrtStr) send to PostgreSQL -> SQL query get data + count comments + sortby -> result.rows -> go back to controller > client
     - seeding => title → article_id lookup mapping, if not test will fail
+    - add new route to app.js
+    - update endpoints.json
+    - pass all test
+    - push and pull
