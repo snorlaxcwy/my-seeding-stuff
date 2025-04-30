@@ -284,3 +284,54 @@ describe("6. POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+describe("7. PATCH /api/articles/:article_id", () => {
+  test("7a. 200: Responds with an update article object with inc_votes via article_id=1 ", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: -5 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual(
+          expect.objectContaining({
+            article_id: 1,
+            votes: 95,
+          })
+        );
+      });
+  });
+  test("7b. 400: inc_votes is invalid", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: aaa })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("400 Bad Request");
+      });
+  });
+  test("7c. 400: inc_votes is missing", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({})
+      .then(({ body }) => {
+        expect(body.msg).toBe("400 Bad Request");
+      });
+  });
+  test("7d. 400: article_id is invalid", () => {
+    return request(app)
+      .patch("/api/articles/aaaaaa")
+      .send({ inc_votes: 5 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("400 Bad Request");
+      });
+  });
+  test("7e. 404: article_id is valid but not exist", () => {
+    return request(app)
+      .patch("/api/articles/9999999")
+      .send({ inc_votes: 5 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("404 Not Found");
+      });
+  });
+});

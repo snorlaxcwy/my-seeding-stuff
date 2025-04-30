@@ -151,3 +151,16 @@ node query.js
     - pass all test
     - update endpoints
     - push and pull
+
+# 7 PATCH /api/articles/:article_id
+
+    - new branch
+    - adjust votes with specific article_id
+    - backend : req.params.article_id take id > increase/reduce votes from req.body.inc_votes > confirm inc_votes is number > check article_id exists > sql update articles.votes > update article object
+    - happy path : 200 - return updated votes in article object
+    - errors : 400 - article_id/inc_votes is not number/invalid, 404 - article_id is valid but not exist
+    - articles > model + controllers
+    - app.js add route
+    - pass all test
+    - update endpoints
+    - push and pull
