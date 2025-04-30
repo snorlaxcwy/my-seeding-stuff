@@ -49,13 +49,13 @@ node query.js
 # Local
 
     git checkout main
-    git pull origi main
+    git pull origin main
     git checkout -B file-name
 
 ## if delete
 
     git checkout main <go to main first>
-    git banch -D file-name
+    git branch -D file-name
 
 # 1. GET /api
 
@@ -135,6 +135,19 @@ node query.js
     - 404 & 400 error case handling
     - create comment model & controller
     - add route to apps.js
+    - pass all test
+    - update endpoints
+    - push and pull
+
+# 6 POST /api/articles/:article_id/comments
+
+    - new branch
+    - post new comments under specific article_id
+    - happy path : 201 - inlcuding comment_id, body, votes, author, article_id, created_at
+    - must have : username, body
+    - errors: 400 X username/body/article_id, 404 article_id valid but not exist
+    - model + controller(POST)
+    - app.js add route
     - pass all test
     - update endpoints
     - push and pull
