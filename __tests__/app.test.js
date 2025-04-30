@@ -237,7 +237,7 @@ describe("5. Get /api/articles/:article_id/comments", () => {
       });
   });
 });
-describe.skip("6. POST /api/articles/:article_id/comments", () => {
+describe("6. POST /api/articles/:article_id/comments", () => {
   test("6a. 201: Responds with new posted comment", () => {
     return request(app)
       .post("/api/articles/3/comments")
