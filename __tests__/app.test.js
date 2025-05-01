@@ -434,3 +434,40 @@ describe("10. GET /api/articles (sorting queries)", () => {
       });
   });
 });
+describe("11. GET /api/articles (topic query)", () => {
+  test("11a. 200: filter articles by topic", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(1);
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("cats");
+        });
+      });
+  });
+  test("11b. 200 return all articles if no topic filter", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+      });
+  });
+  test("11c. 200 return empty array if valid topic has no articles", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toEqual([]);
+      });
+  });
+  test("11d. 404 topic doesnt not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=abcde")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("404 Not Found");
+      });
+  });
+});
