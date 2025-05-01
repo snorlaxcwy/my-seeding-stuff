@@ -17,8 +17,8 @@ exports.selectArticleById = (article_id) => {
       return article;
     });
 };
-//Task 4 & 10
-exports.selectAllArticles = (sort_by = "created_at", order = "desc") => {
+//Task 4, 10 & 11
+exports.selectAllArticles = (sort_by = "created_at", order = "desc", topic) => {
   //greenlisting
   const validSortColumns = [
     "title",
@@ -31,16 +31,19 @@ exports.selectAllArticles = (sort_by = "created_at", order = "desc") => {
   ];
   const validOrders = ["asc", "desc"];
 
-  //invalid sortby query
+  //Task 10 invalid sortby query
   if (!validSortColumns.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "400 Invalid sort_by query" });
   }
-  //invlaid order query
+  //Task 10 invlaid order query
   if (!validOrders.includes(order)) {
     return Promise.reject({ status: 400, msg: "400 Invalid order query" });
   }
 
-  const queryStr = `SELECT articles.article_id,
+  //Test 11c. 200 return empty array if valid topic has no articles
+  const queryValues = [];
+  //use let here, becuase we will reassign queryStr later
+  let queryStr = `SELECT articles.article_id,
          articles.title,
          articles.topic,
          articles.author,
@@ -50,11 +53,42 @@ exports.selectAllArticles = (sort_by = "created_at", order = "desc") => {
          COUNT(comments.comment_id)::INT AS comment_count
   FROM articles
   LEFT JOIN comments
-  ON comments.article_id = articles.article_id
-  GROUP BY articles.article_id, articles.title, articles.topic,articles.author, articles.created_at, articles.votes, articles.article_img_url
+  ON comments.article_id = articles.article_id `;
+
+  //Task 11 Add Topic filter => have articles no matter with topic filter or not
+  if (topic) {
+    queryStr += ` WHERE articles.topic = $1 `;
+    queryValues.push(topic);
+  }
+  queryStr += `GROUP BY 
+    articles.article_id,
+    articles.title,
+    articles.topic,
+    articles.author,
+    articles.created_at,
+    articles.votes,
+    articles.article_img_url
   ORDER BY ${sort_by} ${order};`;
-  return db.query(queryStr).then(({ rows }) => rows);
+  // console.log("SQL:", queryStr);
+  // console.log("Values:", queryValues);
+  return db.query(queryStr, queryValues).then(({ rows }) => {
+    // task 11 no articles but have topic, then check if topic exists
+    if (rows.length === 0 && topic) {
+      return db
+        .query(`SELECT * FROM topics WHERE slug = $1`, [topic])
+        .then(({ rows: topicRows }) => {
+          // task 11 no article and no topic
+          if (topicRows.length === 0) {
+            return Promise.reject({ status: 404, msg: "404 Not Found" });
+          } else {
+            return [];
+          }
+        });
+    }
+    return rows;
+  });
 };
+
 //Task 7
 exports.updateVotesByArticleId = (article_id, inc_votes) => {
   //if inc_votes is empty
