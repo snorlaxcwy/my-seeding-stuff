@@ -109,5 +109,22 @@
     "exampleResponse": {
       "status": 204
     }
+  },
+  "GET /api/users": {
+    "description": "gets all users",
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "Jonny",
+          "avatar_url": "https://avatar.com/jonny.png"
+        },
+        {
+          "username": "icellusedkars",
+          "name": "sam",
+          "avatar_url": "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4"
+        }
+      ]
+    }
   }
 }
