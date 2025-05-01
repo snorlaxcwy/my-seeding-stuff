@@ -335,3 +335,29 @@ describe("7. PATCH /api/articles/:article_id", () => {
       });
   });
 });
+describe("8. DELETE /api/comments/:comment_id", () => {
+  test("8a. Responds 204: No Content after deletion", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("8b. Responds 400 : comment_id is invalid", () => {
+    return request(app)
+      .delete("/api/comments/abc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("400 Bad Request");
+      });
+  });
+  test("8c. Responds 400 : comment_id is valid but not exist", () => {
+    return request(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("404 Not Found");
+      });
+  });
+});
