@@ -126,5 +126,26 @@
         }
       ]
     }
+  },
+  "GET /api/articles": {
+    "description": "Fetch all articles. Supports sorting and ordering via queries.",
+    "queries": {
+      "sort_by": "Any column: title, topic, author, created_at, votes, article_id, comment_count",
+      "order": "asc or desc (default: desc)"
+    },
+    "exampleResponse": {
+      "articles": [
+        {
+          "article_id": 1,
+          "title": "Living in the shadow of a great man",
+          "topic": "mitch",
+          "author": "butter_bridge",
+          "body": "I find this existence challenging",
+          "created_at": "2020-11-03T09:12:00.000Z",
+          "votes": 100,
+          "comment_count": 5
+        }
+      ]
+    }
   }
 }
