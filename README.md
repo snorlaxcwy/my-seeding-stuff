@@ -203,3 +203,16 @@ node query.js
     - pass all tests
     - update endpoints
     - push and pull
+
+# 11 GET /api/articles (topic query)
+
+    - pull and new branch
+    - target : get articles with query by topic
+    - happy path: ?topic=cats
+    - happy path: /api/articles => return all articles
+    - happy path: ?topic=paper => valid topic but no article found return empty array
+    - error: invalid topic => ?topic=abcdef return 404 Not Found
+    - articles > model + controller (update task 10)
+    - pass all tests
+    - update endpoints
+    - push and pull

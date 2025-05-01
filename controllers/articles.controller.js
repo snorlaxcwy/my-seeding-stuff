@@ -12,15 +12,18 @@ exports.getArticleById = (req, res, next) => {
     })
     .catch(next);
 };
-//Task 4 & 10
+//Task 4 ,10 & 11
 exports.getAllArticles = (req, res, next) => {
-  const { sort_by, order } = req.query;
+  const { sort_by, order, topic } = req.query;
 
-  selectAllArticles(sort_by, order)
+  selectAllArticles(sort_by, order, topic)
     .then((articles) => {
       res.status(200).send({ articles });
     })
-    .catch(next);
+    .catch((err) => {
+      console.log("ERROR:", err);
+      next(err);
+    });
 };
 //Task 7
 exports.patchArticleVotes = (req, res, next) => {
