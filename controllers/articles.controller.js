@@ -3,7 +3,7 @@ const {
   selectAllArticles,
   updateVotesByArticleId,
 } = require("../models/articles.model");
-
+//Task 3
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
   selectArticleById(article_id)
@@ -12,7 +12,7 @@ exports.getArticleById = (req, res, next) => {
     })
     .catch(next);
 };
-
+//Task 4
 exports.getAllArticles = async (req, res, next) => {
   selectAllArticles()
     .then((articles) => {
@@ -20,7 +20,7 @@ exports.getAllArticles = async (req, res, next) => {
     })
     .catch(next);
 };
-
+//Task 7
 exports.patchArticleVotes = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;

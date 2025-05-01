@@ -164,3 +164,16 @@ node query.js
     - pass all test
     - update endpoints
     - push and pull
+
+# 8 DELETE /api/comments/:comment_id
+
+    - pull and new branch
+    - target : delete comment by comment_id
+    - happy path : 204 - No Content
+    - errors : 400 - comment_id is invalid(!Number)
+    - errors : 404 - comment_id is valid(Number) but not exsit
+    - folder comments> model + controller
+    - add route app.delete in apps.js
+    - pass all tests
+    - update endpoints
+    - push and pull

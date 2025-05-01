@@ -2,6 +2,7 @@ const { resource } = require("../app");
 const db = require("../db/connection");
 const articles = require("../db/data/test-data/articles");
 
+//Task 5
 exports.selectCommentsByArticleId = (article_id) => {
   const queryStr = `SELECT comment_id, votes, created_at, author, body, article_id
     FROM comments
@@ -31,6 +32,7 @@ exports.selectCommentsByArticleId = (article_id) => {
   });
 };
 
+//Task 6
 exports.insertCommentByArticleId = (article_id, newComment) => {
   const { username, body } = newComment;
   // if no username/body => pass to 400
@@ -55,4 +57,26 @@ exports.insertCommentByArticleId = (article_id, newComment) => {
         .query(queryStr, [username, body, article_id])
         .then(({ rows }) => rows[0]);
     });
+};
+
+//Task 8
+exports.deleteCommentByCommentId = (comment_id) => {
+  //if comment_id is invalid - test 8b
+  if (isNaN(Number(comment_id))) {
+    return Promise.reject({ status: 400, msg: "400 Bad Request" });
+  }
+  return (
+    db
+      .query(
+        `DELETE FROM comments WHERE comment_id=$1
+    RETURNING *;`,
+        [comment_id]
+      )
+      //if comment_id is valid but not data exist - test 8c
+      .then(({ rows }) => {
+        if (rows.length === 0) {
+          return Promise.reject({ status: 404, msg: "404 Not Found" });
+        }
+      })
+  );
 };
