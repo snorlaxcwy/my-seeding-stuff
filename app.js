@@ -11,6 +11,7 @@ const { getTopics } = require("./controllers/topics.controller");
 const {
   getArticleById,
   getAllArticles,
+  patchArticleVotes,
 } = require("./controllers/articles.controller");
 const { getCommentsByArticleId } = require("./controllers/comments.controller");
 const { postCommentByArticleId } = require("./controllers/comments.controller");
@@ -21,6 +22,7 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
+app.patch("/api/articles/:article_id", patchArticleVotes);
 
 // 404 handler
 app.all("/*splat", (req, res) => {
