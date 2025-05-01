@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 const comments = require("../db/data/test-data/comments");
-
+//Task 3
 exports.selectArticleById = (article_id) => {
   return db
     .query(
@@ -17,22 +17,45 @@ exports.selectArticleById = (article_id) => {
       return article;
     });
 };
+//Task 4 & 10
+exports.selectAllArticles = (sort_by = "created_at", order = "desc") => {
+  //greenlisting
+  const validSortColumns = [
+    "title",
+    "topic",
+    "author",
+    "created_at",
+    "votes",
+    "article_id",
+    "comment_count",
+  ];
+  const validOrders = ["asc", "desc"];
 
-exports.selectAllArticles = async () => {
-  const queryStr = `SELECT articles.author, articles.title, articles.article_id,articles.topic, 
-  articles.created_at, 
-  articles.votes,
-  articles.article_img_url,
-  COUNT(comments.comment_id)::INT AS comment_count
+  //invalid sortby query
+  if (!validSortColumns.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "400 Invalid sort_by query" });
+  }
+  //invlaid order query
+  if (!validOrders.includes(order)) {
+    return Promise.reject({ status: 400, msg: "400 Invalid order query" });
+  }
+
+  const queryStr = `SELECT articles.article_id,
+         articles.title,
+         articles.topic,
+         articles.author,
+         articles.created_at,
+         articles.votes,
+         articles.article_img_url,
+         COUNT(comments.comment_id)::INT AS comment_count
   FROM articles
   LEFT JOIN comments
   ON comments.article_id = articles.article_id
-  GROUP BY articles.article_id
-  ORDER BY articles.created_at DESC;`;
-  const result = await db.query(queryStr);
-  return result.rows;
+  GROUP BY articles.article_id, articles.title, articles.topic,articles.author, articles.created_at, articles.votes, articles.article_img_url
+  ORDER BY ${sort_by} ${order};`;
+  return db.query(queryStr).then(({ rows }) => rows);
 };
-
+//Task 7
 exports.updateVotesByArticleId = (article_id, inc_votes) => {
   //if inc_votes is empty
   if (typeof inc_votes !== "number") {

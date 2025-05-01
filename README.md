@@ -189,3 +189,17 @@ node query.js
     - pass all test
     - updates endpoints
     - push and pull
+
+# 10 GET /api/articles (sorting queries)
+
+    - pull and new branch
+    - target : get all articles with query default sorted by created_at and order by either ASC || DESC
+    - happy path: ?order=asc (default created_at DESC->newly added date)
+    - happy path: ?sort_by=title
+    - happy path: ?sort_by=topic&order=asc
+    - Errors : ?sort_by=abcde(invalid column) => 400 Bad Request
+    - Errors : ?order=number(invalid order) => 400 Bad Request
+    - articles > model + controller ( update Task 4 content)
+    - pass all tests
+    - update endpoints
+    - push and pull

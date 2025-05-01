@@ -12,9 +12,11 @@ exports.getArticleById = (req, res, next) => {
     })
     .catch(next);
 };
-//Task 4
-exports.getAllArticles = async (req, res, next) => {
-  selectAllArticles()
+//Task 4 & 10
+exports.getAllArticles = (req, res, next) => {
+  const { sort_by, order } = req.query;
+
+  selectAllArticles(sort_by, order)
     .then((articles) => {
       res.status(200).send({ articles });
     })
