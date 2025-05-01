@@ -177,3 +177,15 @@ node query.js
     - pass all tests
     - update endpoints
     - push and pull
+
+# 9 GET /api/users
+
+    - pull and new branch
+    - target: get all users with array of object
+    - happy path: 200 inlcluding [{username,name,avatar_url},{username,name,avatar_url}]
+    - errors : 500 - db errors
+    - users > model + controller
+    - add rounte to app.get in app.js
+    - pass all test
+    - updates endpoints
+    - push and pull
