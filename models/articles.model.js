@@ -32,3 +32,28 @@ exports.selectAllArticles = async () => {
   const result = await db.query(queryStr);
   return result.rows;
 };
+
+exports.updateVotesByArticleId = (article_id, inc_votes) => {
+  //if inc_votes is empty
+  if (typeof inc_votes !== "number") {
+    return Promise.reject({ status: 400, msg: "400 Bad Request" });
+  }
+
+  //check article_is exists
+  return db
+    .query(`SELECT * FROM articles WHERE article_id=$1`, [article_id])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "404 Not Found" });
+      }
+      //update votes in the article object
+      return db.query(
+        `UPDATE articles
+      SET votes = votes + $1
+      WHERE article_id= $2
+      RETURNING *;`,
+        [inc_votes, article_id]
+      );
+    })
+    .then(({ rows }) => rows[0]);
+};

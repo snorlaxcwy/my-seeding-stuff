@@ -302,7 +302,7 @@ describe("7. PATCH /api/articles/:article_id", () => {
   test("7b. 400: inc_votes is invalid", () => {
     return request(app)
       .patch("/api/articles/1")
-      .send({ inc_votes: aaa })
+      .send({ inc_votes: "aaa" })
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("400 Bad Request");
