@@ -216,3 +216,15 @@ node query.js
     - pass all tests
     - update endpoints
     - push and pull
+
+# 12 GET /api/articles/:article_id (comment_count)
+
+    - pull and new branch
+    - target : add comment_count into articles
+    - happy path : return correct count to the articles
+    - edge case : with article but no comment
+    - no JS in controller
+    - update articles > Task 3 model + controller
+    - pass all tests
+    - update endpints
+    - push and pull

@@ -3,7 +3,7 @@ const {
   selectAllArticles,
   updateVotesByArticleId,
 } = require("../models/articles.model");
-//Task 3
+//Task 3 & 12
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
   selectArticleById(article_id)

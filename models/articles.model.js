@@ -1,10 +1,19 @@
 const db = require("../db/connection");
 const comments = require("../db/data/test-data/comments");
-//Task 3
+//Task 3 & 12
 exports.selectArticleById = (article_id) => {
+  // check if article_id is number or not
+  if (isNaN(article_id)) {
+    return Promise.reject({ status: 400, msg: "400 Bad Request" });
+  }
   return db
     .query(
-      `SELECT author, title, article_id, body, topic, created_at, votes, article_img_url FROM articles WHERE article_id=$1;`,
+      `SELECT articles.*,
+       COUNT(comments.comment_id)::INT AS comment_count
+      FROM articles 
+      LEFT JOIN comments ON comments.article_id = articles.article_id 
+      WHERE articles.article_id=$1 
+      GROUP BY articles.article_id;`,
       [article_id]
     )
     .then(({ rows }) => {
