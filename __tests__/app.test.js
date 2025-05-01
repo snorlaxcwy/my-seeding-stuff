@@ -471,3 +471,25 @@ describe("11. GET /api/articles (topic query)", () => {
       });
   });
 });
+describe("12. GET /api/articles/:article_id (comment_count)", () => {
+  test("12a. 200: article object includes added comment_count", () => {
+    return request(app)
+      .get("/api/articles/6")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toHaveProperty("comment_count");
+        expect(typeof body.article.comment_count).toBe("number");
+        expect(body.article.comment_count).toBe(1);
+      });
+  });
+  test("12b. 200: return 0 comment_count if article avaliable but no comment", () => {
+    return request(app)
+      .get("/api/articles/7")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toHaveProperty("comment_count");
+        expect(typeof body.article.comment_count).toBe("number");
+        expect(body.article.comment_count).toBe(0);
+      });
+  });
+});
