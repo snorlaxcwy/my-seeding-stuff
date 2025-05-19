@@ -493,3 +493,26 @@ describe("12. GET /api/articles/:article_id (comment_count)", () => {
       });
   });
 });
+describe("15. GET /api/users/:username", () => {
+  test("15a. 200 - return a single user object if username is valid & exist", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.user).toEqual({
+          username: "butter_bridge",
+          name: "jonny",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+        });
+      });
+  });
+  test("15b. 404 Not Found if username is valid & not exists", () => {
+    return request(app)
+      .get("/api/users/123abc")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("404 Not Found");
+      });
+  });
+});

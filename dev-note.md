@@ -228,3 +228,80 @@ node query.js
     - pass all tests
     - update endpints
     - push and pull
+
+# 13 Host application
+
+1. Supabase > new project + pw +url (Transaction pooler)
+2. .env.production > DATABASE_URL=URL
+3. change connection.js
+4. listen.js
+5. package.json
+   "main": "listen.js",
+   "scripts": {
+   "start": "node listen.js",
+   "seed-prod": "NODE_ENV=production npm run seed"
+   }
+6. git commit and push
+7. npm run seed-prod
+8. render> web services > link git >
+   Build Command: yarn
+   Start Command: yarn start
+   Environment Variables：
+   DATABASE_URL = URL
+   NODE_ENV = production
+9. test api : https://snorlax-7fa6.onrender.com
+
+# 14 README
+
+# 15 Express Routers => refactor app.js
+
+- before refactoring :
+  - pass all test
+  - commit all codes
+  - api : render will auto deploy
+  - need to update endpoints.json
+- no effect on :
+  - supabase database
+  - .env.production
+  - seed-prod / run-seed.js
+  - database
+- mkdir routes, touch api-router.js > routes/api-router.js
+- api-router.js >
+  const express = require("express");
+  const apiRouter = express.Router();
+  change app.get to apiRouter
+  module.exports = apiRouter;
+- app.js >
+  const apiRouter = require("./routes/api-router");
+  app.use("/api", apiRouter);
+- npm start
+- browser : http://localhost:9090/api
+  ## subrouters
+  - example
+  - main : api-routers.js => sub :routes/users-router.js
+  - api-router.js
+    const userRouter = require("./users-router");
+    apiRouter.use("/users", userRouter);
+- users-router.js
+  const userRouter = require("express").Router();
+  const { getAllUsers } = require("../controllers/users.controller");
+  userRouter.get("/", getAllUsers);
+  module.exports = userRouter;
+- npm start
+- browser to check if api response : http://localhost:9090/api
+- npm test > all tests passed
+- if not, change the path in routes (if path is correct => route is just keep "/")
+
+# 16 GET /api/users/:username
+
+- pull and new branch
+- backend : client > app.js > apiRouter > userRouter > controller > model（check db）> response/error
+- happy path : 200 - return user object{ username, avatar_url, name} by user_name
+- errors : 404 Not Found ( username could be either number || string )
+- update users > model & controller
+- update /routes/users-routes.js
+- pass all tests
+- update endpoints.json
+- push and pull
+
+# 17 PATCH /api/comments/:comment_id
