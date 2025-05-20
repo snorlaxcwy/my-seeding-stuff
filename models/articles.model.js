@@ -32,6 +32,7 @@ exports.selectAllArticles = (sort_by = "created_at", order = "desc", topic) => {
   const validSortColumns = [
     "title",
     "topic",
+    "body",
     "author",
     "created_at",
     "votes",
@@ -55,6 +56,7 @@ exports.selectAllArticles = (sort_by = "created_at", order = "desc", topic) => {
   let queryStr = `SELECT articles.article_id,
          articles.title,
          articles.topic,
+         articles.body,
          articles.author,
          articles.created_at,
          articles.votes,
@@ -73,6 +75,7 @@ exports.selectAllArticles = (sort_by = "created_at", order = "desc", topic) => {
     articles.article_id,
     articles.title,
     articles.topic,
+    articles.body,
     articles.author,
     articles.created_at,
     articles.votes,
