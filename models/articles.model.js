@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const { articleData } = require("../db/data/test-data");
 const comments = require("../db/data/test-data/comments");
 //Task 3 & 12
 exports.selectArticleById = (article_id) => {
@@ -125,4 +126,21 @@ exports.updateVotesByArticleId = (article_id, inc_votes) => {
       );
     })
     .then(({ rows }) => rows[0]);
+};
+
+//Task 18
+exports.insertArticle = (articleData) => {
+  //explain the data inside articleData
+  const { title, topic, author, body, article_img_url } = articleData;
+  if (!title || !topic || !author || !body) {
+    return Promise.reject({ status: 400, msg: "Missing required fields" });
+  }
+  // execute insert
+  const queryStr = `
+    INSERT INTO articles (title, topic, author, body, article_img_url)
+    VALUES($1,$2,$3,$4,$5)
+    RETURNING *`;
+  const values = [title, topic, author, body, article_img_url || null];
+
+  return db.query(queryStr, values).then(({ rows }) => rows[0]);
 };
