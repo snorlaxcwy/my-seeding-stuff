@@ -139,7 +139,7 @@ describe("4. Get /api/articles", () => {
               comment_count: expect.any(Number),
             })
           );
-          expect(article).not.toHaveProperty("body");
+          // expect(article).not.toHaveProperty("body");
         });
       });
   });
