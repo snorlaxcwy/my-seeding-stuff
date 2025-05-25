@@ -2,34 +2,40 @@ const { resource } = require("../app");
 const db = require("../db/connection");
 const articles = require("../db/data/test-data/articles");
 
-//Task 5
-exports.selectCommentsByArticleId = (article_id) => {
-  const queryStr = `SELECT comment_id, votes, created_at, author, body, article_id
+//Task 5 & 20
+exports.selectCommentsByArticleId = async (article_id, limit, p) => {
+  limit = Number(limit) || 10;
+  p = Number(p) || 1;
+  if (isNaN(limit) || limit < 1)
+    throw { status: 400, msg: "Invalid limit query" };
+  if (isNaN(p) || p < 1) throw { status: 400, msg: "Invalid page query" };
+  const offset = (p - 1) * limit;
+
+  const queryStr = `
+    SELECT comment_id, votes, created_at, author, body, article_id
     FROM comments
     WHERE article_id=$1
-    ORDER BY created_at DESC;`;
+    ORDER BY created_at DESC
+    LIMIT $2 OFFSET $3;`;
 
+  const countStr = `SELECT COUNT(*)::INT AS total_count FROM comments WHERE article_id=$1;`;
+
+  const [result, countResult] = await Promise.all([
+    db.query(queryStr, [article_id, limit, offset]),
+    db.query(countStr, [article_id]),
+  ]);
   //double check if article exists
-  return db.query(queryStr, [article_id]).then((result) => {
-    //if articles table doesnt have this article_id, result.rows will be empty
-    if (result.rows.length === 0) {
-      return db
-        .query(
-          // check if articles has this article
-          `SELECT * FROM articles WHERE article_id = $1`,
-          [article_id]
-        )
-        .then((articleResult) => {
-          if (articleResult.rows.length === 0) {
-            return Promise.reject({ status: 404, msg: "404 Not Found" });
-          } else {
-            return []; //test 5c
-          }
-        });
-    } else {
-      return result.rows;
-    }
-  });
+  if (result.rows.length === 0) {
+    const article = await db.query(
+      `SELECT * FROM articles WHERE article_id=$1`,
+      [article_id]
+    );
+    if (article.rows.length === 0) throw { status: 404, msg: "404 Not Found" };
+  }
+  return {
+    comments: result.rows,
+    total_count: countResult.rows[0].total_count,
+  };
 };
 
 //Task 6
@@ -79,4 +85,25 @@ exports.deleteCommentByCommentId = (comment_id) => {
         }
       })
   );
+};
+
+// Task 17
+exports.updateCommentVotes = (comment_id, inc_votes) => {
+  if (isNaN(Number(comment_id))) {
+    return Promise.reject({ status: 400, msg: "400 Bad Request" });
+  }
+  if (inc_votes === undefined || typeof inc_votes !== "number") {
+    return Promise.reject({ status: 400, msg: "400 Bad Request" });
+  }
+  return db
+    .query(
+      `UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *;`,
+      [inc_votes, comment_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "404 Not Found" });
+      }
+      return rows[0];
+    });
 };
