@@ -305,3 +305,13 @@ node query.js
 - push and pull
 
 # 17 PATCH /api/comments/:comment_id
+
+# 18 POST /api/articles
+
+# 19
+
+# 20
+
+# 21 POST /api/topics
+
+    - create route:topic.router.js
