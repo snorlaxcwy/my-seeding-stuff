@@ -12,7 +12,7 @@ app.use(cors());
 app.use("/api", apiRouter);
 
 // 404 handler
-app.all("/*splat", (req, res) => {
+app.all("/*Splat", (req, res) => {
   res.status(404).send({ msg: "404 Not Found" });
 });
 

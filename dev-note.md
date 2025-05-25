@@ -314,4 +314,8 @@ node query.js
 
 # 21 POST /api/topics
 
+    - topics.model => insertTopic()
+    - topics.contoller.js => postTopic()
     - create route:topic.router.js
+    - update api-router
+    - update endpoint
