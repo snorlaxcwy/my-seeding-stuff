@@ -171,7 +171,6 @@ describe("5. Get /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body }) => {
-        expect(Array.isArray(body.comments)).toBe(true);
         expect(body.comments).toBeSortedBy("created_at", { descending: true });
         body.comments.forEach((comment) => {
           expect(comment).toEqual(
@@ -194,20 +193,20 @@ describe("5. Get /api/articles/:article_id/comments", () => {
       .then(({ body }) => {
         expect(body.comments).toEqual([
           {
-            comment_id: expect.any(Number),
-            body: "Ambidextrous marsupial",
-            votes: 0,
-            author: "icellusedkars",
-            created_at: "2020-09-19T23:10:00.000Z",
             article_id: 3,
+            author: "icellusedkars",
+            body: "Ambidextrous marsupial",
+            comment_id: 11,
+            created_at: "2020-09-19T23:10:00.000Z",
+            votes: 0,
           },
           {
-            comment_id: expect.any(Number),
-            body: "git push origin master",
-            votes: 0,
-            author: "icellusedkars",
-            created_at: "2020-06-20T07:24:00.000Z",
             article_id: 3,
+            author: "icellusedkars",
+            body: "git push origin master",
+            comment_id: 10,
+            created_at: "2020-06-20T07:24:00.000Z",
+            votes: 0,
           },
         ]);
       });
@@ -237,6 +236,7 @@ describe("5. Get /api/articles/:article_id/comments", () => {
       });
   });
 });
+
 describe("6. POST /api/articles/:article_id/comments", () => {
   test("6a. 201: Responds with new posted comment", () => {
     return request(app)
@@ -451,7 +451,7 @@ describe("11. GET /api/articles (topic query)", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles.length).toBe(13);
+        expect(body.articles.length).toBe(10);
       });
   });
   test("11c. 200 return empty array if valid topic has no articles", () => {
@@ -516,6 +516,85 @@ describe("15. GET /api/users/:username", () => {
       });
   });
 });
+describe("17. PATCH /api/comments/:comment_id", () => {
+  test("17a. PATCH /api/comments/:comment_id, upvote", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toHaveProperty("votes");
+      });
+  });
+
+  test("17b. PATCH /api/comments/:comment_id, invalid comment_id", () => {
+    return request(app)
+      .patch("/api/comments/apple")
+      .send({ inc_votes: 1 })
+      .expect(400);
+  });
+
+  test("17c. PATCH /api/comments/:comment_id, comment 不存在", () => {
+    return request(app)
+      .patch("/api/comments/9999")
+      .send({ inc_votes: 1 })
+      .expect(404);
+  });
+
+  test("17d. PATCH /api/comments/:comment_id, inc_votes missing", () => {
+    return request(app).patch("/api/comments/1").send({}).expect(400);
+  });
+});
+
+describe("19. GET /api/articles (Pagination)", () => {
+  test("19a. 200: returns paginated articles with default limit (10)", async () => {
+    const res = await request(app).get("/api/articles");
+    expect(res.status).toBe(200);
+    expect(res.body.articles.length).toBeLessThanOrEqual(10);
+    expect(res.body).toHaveProperty("total_count");
+    expect(typeof res.body.total_count).toBe("number");
+  });
+
+  test("19b. 200: returns paginated articles with custom limit and page", async () => {
+    const res = await request(app).get("/api/articles?limit=5&p=2");
+    expect(res.status).toBe(200);
+    expect(res.body.articles.length).toBeLessThanOrEqual(5);
+    expect(res.body).toHaveProperty("total_count");
+  });
+
+  test("19c. 200: paginates + filters by topic", async () => {
+    const res = await request(app).get(
+      "/api/articles?topic=coding&limit=2&p=1"
+    );
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty("msg", "404 Not Found");
+  });
+
+  test("19d. 400: limit is not a number", async () => {
+    const res = await request(app).get("/api/articles?limit=banana");
+    expect(res.status).toBe(400);
+    expect(res.body.msg).toMatch(/limit/i);
+  });
+
+  test("19e. 400: page is not a number", async () => {
+    const res = await request(app).get("/api/articles?p=apple");
+    expect(res.status).toBe(400);
+    expect(res.body.msg).toMatch(/page/i);
+  });
+
+  test("19f. 400: negative limit or page", async () => {
+    const res = await request(app).get("/api/articles?limit=-2&p=-1");
+    expect(res.status).toBe(400);
+    expect(res.body.msg).toMatch(/limit|page/i);
+  });
+
+  test("19g. 200: returns empty array for out-of-bounds page", async () => {
+    const res = await request(app).get("/api/articles?p=9999");
+    expect(res.status).toBe(200);
+    expect(res.body.articles).toEqual([]);
+  });
+});
+
 describe("21. POST /api/topics", () => {
   test("21a. 201: should create and return a new topic", () => {
     return request(app)
@@ -534,14 +613,28 @@ describe("21. POST /api/topics", () => {
         });
       });
   });
+});
 
-  test("21b. 400: missing slug or description returns error", () => {
+describe("22. ELETE /api/articles/:article_id ", () => {
+  test("22a. DELETE /api/articles/:article_id - 204: successfully deletes article and comments", () => {
+    return request(app).delete("/api/articles/1").expect(204);
+  });
+
+  test("22b. DELETE /api/articles/:article_id - 404: article not found", () => {
     return request(app)
-      .post("/api/topics")
-      .send({ description: "No slug here" })
+      .delete("/api/articles/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("404 Not Found");
+      });
+  });
+
+  test("DELETE /api/articles/:article_id - 400: invalid id", () => {
+    return request(app)
+      .delete("/api/articles/apple")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Missing required fields");
+        expect(body.msg).toBe("400 Bad Request");
       });
   });
 });

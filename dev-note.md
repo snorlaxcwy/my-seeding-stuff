@@ -308,7 +308,7 @@ node query.js
 
 # 18 POST /api/articles
 
-# 19
+# 19 GET /api/articles (pagination)
 
 # 20
 

@@ -27,9 +27,26 @@ exports.selectArticleById = (article_id) => {
       return article;
     });
 };
-//Task 4, 10 & 11
-exports.selectAllArticles = (sort_by = "created_at", order = "desc", topic) => {
-  //greenlisting
+
+/**
+ * selectAllArticles - Main function for fetching articles with:
+ *  - Sorting, Filtering, Pagination, and Total Count
+ *  - Handles all error cases according to test suite
+ *
+ * Tasks:
+ *   - Task 4: 基本列出所有 articles
+ *   - Task 10: 支援 sort_by 及 order
+ *   - Task 11: 用 topic filter，並正確處理不存在嘅 topic
+ *   - Task 19: 支援 pagination (limit, p) 及 total_count
+ */
+exports.selectAllArticles = async (
+  sort_by = "created_at",
+  order = "desc",
+  topic,
+  limit = 10,
+  p = 1
+) => {
+  // --- 1. Validate sort and order parameters (Task 10) ---
   const validSortColumns = [
     "title",
     "topic",
@@ -41,65 +58,76 @@ exports.selectAllArticles = (sort_by = "created_at", order = "desc", topic) => {
     "comment_count",
   ];
   const validOrders = ["asc", "desc"];
-
-  //Task 10 invalid sortby query
   if (!validSortColumns.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "400 Invalid sort_by query" });
   }
-  //Task 10 invlaid order query
   if (!validOrders.includes(order)) {
     return Promise.reject({ status: 400, msg: "400 Invalid order query" });
   }
 
-  //Test 11c. 200 return empty array if valid topic has no articles
-  const queryValues = [];
-  //use let here, becuase we will reassign queryStr later
-  let queryStr = `SELECT articles.article_id,
-         articles.title,
-         articles.topic,
-         articles.body,
-         articles.author,
-         articles.created_at,
-         articles.votes,
-         articles.article_img_url,
-         COUNT(comments.comment_id)::INT AS comment_count
-  FROM articles
-  LEFT JOIN comments
-  ON comments.article_id = articles.article_id `;
+  // --- 2. Validate pagination inputs (Task 19) ---
+  // limit
+  if (limit !== undefined && (isNaN(limit) || limit < 1)) {
+    return Promise.reject({ status: 400, msg: "Invalid limit query" });
+  }
+  // page
+  if (p !== undefined && (isNaN(p) || p < 1)) {
+    return Promise.reject({ status: 400, msg: "Invalid page query" });
+  }
+  limit = Number(limit) || 10;
+  p = Number(p) || 1;
+  const offset = (p - 1) * limit;
 
-  //Task 11 Add Topic filter => have articles no matter with topic filter or not
+  // --- 3. Prepare SQL query (Task 4, 10, 11, 19) ---
+  const queryValues = [];
+  let whereStr = "";
   if (topic) {
-    queryStr += ` WHERE articles.topic = $1 `;
+    whereStr = "WHERE articles.topic = $1";
     queryValues.push(topic);
   }
-  queryStr += `GROUP BY 
-    articles.article_id,
-    articles.title,
-    articles.topic,
-    articles.body,
-    articles.author,
-    articles.created_at,
-    articles.votes,
-    articles.article_img_url
-  ORDER BY ${sort_by} ${order};`;
-  // console.log("SQL:", queryStr);
-  // console.log("Values:", queryValues);
-  return db.query(queryStr, queryValues).then(({ rows }) => {
-    // task 11 no articles but have topic, then check if topic exists
-    if (rows.length === 0 && topic) {
-      return db
-        .query(`SELECT * FROM topics WHERE slug = $1`, [topic])
-        .then(({ rows: topicRows }) => {
-          // task 11 no article and no topic
-          if (topicRows.length === 0) {
-            return Promise.reject({ status: 404, msg: "404 Not Found" });
-          } else {
-            return [];
-          }
-        });
+
+  // --- 4. Articles query with pagination ---
+  const articleQuery = `
+    SELECT articles.article_id, articles.title, articles.topic, articles.body, articles.author,
+      articles.created_at, articles.votes, articles.article_img_url,
+      COUNT(comments.comment_id)::INT AS comment_count
+    FROM articles
+    LEFT JOIN comments ON comments.article_id = articles.article_id
+    ${whereStr}
+    GROUP BY articles.article_id
+    ORDER BY ${sort_by} ${order}
+    LIMIT $${queryValues.length + 1} OFFSET $${queryValues.length + 2};
+  `;
+  // --- 5. Query for total_count (filters applied) ---
+  const countQuery = `
+    SELECT COUNT(*)::INT AS total_count FROM articles ${whereStr};
+  `;
+
+  // --- 6. Run queries in parallel ---
+  const [articlesResult, countResult] = await Promise.all([
+    db.query(articleQuery, [...queryValues, limit, offset]),
+    db.query(countQuery, queryValues),
+  ]);
+
+  // --- 7. Handle case: topic exists but no articles (Task 11c/11d) ---
+  if (articlesResult.rows.length === 0 && topic) {
+    const topicCheck = await db.query(`SELECT * FROM topics WHERE slug = $1`, [
+      topic,
+    ]);
+    if (topicCheck.rows.length === 0) {
+      // topic does not exist (Task 11d)
+      return Promise.reject({ status: 404, msg: "404 Not Found" });
+    } else {
+      // topic exists, but no articles (Task 11c)
+      return { articles: [], total_count: 0 };
     }
-    return rows;
-  });
+  }
+
+  // --- 8. Return results (Task 4, 19) ---
+  return {
+    articles: articlesResult.rows,
+    total_count: countResult.rows[0].total_count,
+  };
 };
 
 //Task 7
@@ -143,4 +171,23 @@ exports.insertArticle = (articleData) => {
   const values = [title, topic, author, body, article_img_url || null];
 
   return db.query(queryStr, values).then(({ rows }) => rows[0]);
+};
+
+// Task 22
+exports.deleteArticleById = async (article_id) => {
+  if (isNaN(article_id)) {
+    return Promise.reject({ status: 400, msg: "400 Bad Request" });
+  }
+
+  const articleRes = await db.query(
+    `SELECT * FROM articles WHERE article_id = $1`,
+    [article_id]
+  );
+  if (articleRes.rows.length === 0) {
+    return Promise.reject({ status: 404, msg: "404 Not Found" });
+  }
+
+  await db.query(`DELETE FROM comments WHERE article_id = $1`, [article_id]);
+
+  await db.query(`DELETE FROM articles WHERE article_id = $1`, [article_id]);
 };

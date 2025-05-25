@@ -2,6 +2,7 @@
   "GET /api": {
     "description": "serves up a json representation of all the available endpoints of the api"
   },
+
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],
@@ -9,6 +10,23 @@
       "topics": [{ "slug": "cats", "description": "Not dogs" }]
     }
   },
+
+  "POST /api/topics": {
+    "description": "Add a new topic. Requires slug and description. (img_url optional)",
+    "requestBody": {
+      "slug": "topic name here",
+      "description": "description here",
+      "img_url": "optional url"
+    },
+    "exampleResponse": {
+      "topic": {
+        "slug": "travel",
+        "description": "Travel around the world",
+        "img_url": "https://www.example.com/image.jpg"
+      }
+    }
+  },
+
   "GET /api/articles/:article_id": {
     "description": "Responds with an article object for the given article_id. Includes total comment_count.",
     "queries": [],
@@ -26,41 +44,108 @@
       }
     }
   },
+
+  "PATCH /api/articles/:article_id": {
+    "description": "Updates an article's votes by a given amount.",
+    "requestBody": {
+      "inc_votes": -5
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "votes": 95,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
+    }
+  },
+
+  "DELETE /api/articles/:article_id": {
+    "description": "Deletes an article by article_id, and all its associated comments. Responds with status 204 and no content.",
+    "exampleResponse": {
+      "status": 204
+    }
+  },
+
   "GET /api/articles": {
-    "description": "Responds with an array of all articles. Supports sorting, ordering and filtering by topic.",
+    "description": "Responds with an array of all articles. Supports sorting, ordering, filtering by topic, and pagination. Includes total_count.",
     "queries": {
       "sort_by": "Column to sort by. Default: created_at. Valid columns: article_id, title, topic, author, created_at, votes, comment_count",
       "order": "Order of sorting. Default: desc. Options: asc, desc",
-      "topic": "Filter articles by topic (e.g. ?topic=cats)."
+      "topic": "Filter articles by topic (e.g. ?topic=cats).",
+      "limit": "Number of articles per page (pagination). Default: 10.",
+      "p": "Page number (pagination). Default: 1."
     },
-    "example": "/api/articles?sort_by=votes&order=asc&topic=mitch"
-  },
-  "GET /api/articles/:article_id/comments": {
-    "description": "serves an array of all comments by article_id, sorted by created_at descending.",
-    "queries": [],
+    "example": "/api/articles?sort_by=votes&order=asc&topic=mitch&limit=5&p=2",
     "exampleResponse": {
       "articles": [
         {
-          "comment_id": 3,
-          "body": "Ambidextrous marsupial",
-          "votes": 0,
+          "article_id": 2,
+          "title": "Sony Vaio; or, The Laptop",
+          "topic": "mitch",
           "author": "icellusedkars",
-          "created_at": "2020-09-19T23:10:00.000Z",
-          "article_id": 3
-        },
-        {
-          "comment_id": 3,
-          "body": "git push origin master",
+          "body": "Call me Mitchell.",
+          "created_at": "2020-10-16T05:03:00.000Z",
           "votes": 0,
-          "author": "icellusedkars",
-          "created_at": "2020-06-20T07:24:00.000Z",
-          "article_id": 3
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg",
+          "comment_count": 5
         }
-      ]
+      ],
+      "total_count": 13
     }
   },
+
+  "POST /api/articles": {
+    "description": "Adds a new article. Requires title, topic, author, body (and optional article_img_url).",
+    "requestBody": {
+      "title": "My new article",
+      "topic": "coding",
+      "author": "weegembump",
+      "body": "This is the content of the new article.",
+      "article_img_url": "https://example.com/image.jpg"
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 14,
+        "title": "My new article",
+        "topic": "coding",
+        "author": "weegembump",
+        "body": "This is the content of the new article.",
+        "created_at": "2023-05-25T12:34:00.000Z",
+        "votes": 0,
+        "article_img_url": "https://example.com/image.jpg"
+      }
+    }
+  },
+
+  "GET /api/articles/:article_id/comments": {
+    "description": "Serves an array of all comments by article_id, sorted by created_at descending. Supports pagination.",
+    "queries": {
+      "limit": "Number of comments per page (pagination). Default: 10.",
+      "p": "Page number (pagination). Default: 1."
+    },
+    "example": "/api/articles/1/comments?limit=5&p=2",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 89,
+          "votes": 2,
+          "created_at": "2020-10-24T06:08:00.000Z",
+          "author": "cooljmessy",
+          "body": "Esse et expedita harum non.",
+          "article_id": 1
+        }
+      ],
+      "total_count": 17
+    }
+  },
+
   "POST /api/articles/:article_id/comments": {
-    "description": "add new comment by specific article_id with username and body",
+    "description": "Add new comment to article by article_id. Requires username and body.",
     "requestBody": {
       "username": "butter_bridge",
       "body": "Nice nice!"
@@ -76,32 +161,33 @@
       }
     }
   },
-  "PATCH /api/articles/:article_id": {
-    "description": "Updates an article's votes by a given amount",
+
+  "PATCH /api/comments/:comment_id": {
+    "description": "Updates the votes for a comment by comment_id.",
     "requestBody": {
-      "inc_votes": -5
+      "inc_votes": 1
     },
     "exampleResponse": {
-      "articles": {
+      "comment": {
+        "comment_id": 10,
+        "body": "Well said.",
+        "votes": 12,
+        "author": "weegembump",
         "article_id": 1,
-        "title": "Living in the shadow of a great man",
-        "topic": "mitch",
-        "author": "butter_bridge",
-        "body": "I find this existence challenging",
-        "created_at": "2020-07-09T20:11:00.000Z",
-        "votes": 95,
-        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        "created_at": "2020-11-07T06:03:00.000Z"
       }
     }
   },
+
   "DELETE /api/comments/:comment_id": {
-    "description": "Deletes a comment by comment_id",
+    "description": "Deletes a comment by comment_id.",
     "exampleResponse": {
       "status": 204
     }
   },
+
   "GET /api/users": {
-    "description": "gets all users",
+    "description": "Returns all users.",
     "exampleResponse": {
       "users": [
         {
@@ -117,6 +203,7 @@
       ]
     }
   },
+
   "GET /api/users/:username": {
     "description": "Returns a user by username.",
     "queries": [],
@@ -127,10 +214,5 @@
         "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
       }
     }
-  },
-  "POST /api/topics": {
-    "slug": "topic name here",
-    "description": "description here",
-    "img_url": "optional url"
   }
 }
