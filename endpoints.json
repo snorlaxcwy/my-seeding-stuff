@@ -127,5 +127,10 @@
         "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
       }
     }
+  },
+  "POST /api/topics": {
+    "slug": "topic name here",
+    "description": "description here",
+    "img_url": "optional url"
   }
 }

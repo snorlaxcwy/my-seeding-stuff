@@ -516,3 +516,32 @@ describe("15. GET /api/users/:username", () => {
       });
   });
 });
+describe("21. POST /api/topics", () => {
+  test("21a. 201: should create and return a new topic", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        slug: "testtopic",
+        description: "A topic for testing",
+        img_url: "https://test.com/image.jpg",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.topic).toMatchObject({
+          slug: "testtopic",
+          description: "A topic for testing",
+          img_url: "https://test.com/image.jpg",
+        });
+      });
+  });
+
+  test("21b. 400: missing slug or description returns error", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({ description: "No slug here" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing required fields");
+      });
+  });
+});
