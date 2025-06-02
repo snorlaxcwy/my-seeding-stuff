@@ -28,17 +28,7 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-/**
- * selectAllArticles - Main function for fetching articles with:
- *  - Sorting, Filtering, Pagination, and Total Count
- *  - Handles all error cases according to test suite
- *
- * Tasks:
- *   - Task 4: 基本列出所有 articles
- *   - Task 10: 支援 sort_by 及 order
- *   - Task 11: 用 topic filter，並正確處理不存在嘅 topic
- *   - Task 19: 支援 pagination (limit, p) 及 total_count
- */
+
 exports.selectAllArticles = async (
   sort_by = "created_at",
   order = "desc",
